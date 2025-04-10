@@ -9,8 +9,8 @@ function App() {
     <Router>
       <nav style={{ padding: '10px', backgroundColor: '#f2f2f2' }}>
         <ul style={{ listStyleType: 'none', display: 'flex', gap: '1rem' }}>
-          <li><Link to="/">Strona Główna</Link></li>
-          <li><Link to="/chat">Chat z Chatbotem</Link></li>
+          <li><Link to="/">main page</Link></li>
+          <li><Link to="/chat">PhiloBot</Link></li>
         </ul>
       </nav>
       <Routes>

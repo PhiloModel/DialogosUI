@@ -1,40 +1,54 @@
 import React, { useState } from 'react';
-import { sendMessage } from '../services/api';
+import axios from 'axios';
 import { Container, Form, Button, ListGroup } from 'react-bootstrap';
+import LoadChatBot from '../components/LoadChatBot';  
 
 const ChatPage = () => {
+  // Stan do przechowywania bieżącej wiadomości użytkownika
   const [message, setMessage] = useState('');
+  // Historia konwersacji jako tablica obiektów { sender: 'user'|'bot', text: string }
   const [chatHistory, setChatHistory] = useState([]);
 
   const handleSend = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // zapobiega przeładowaniu strony
     if (!message.trim()) return;
 
     // Dodaj wiadomość użytkownika do historii
     const newHistory = [...chatHistory, { sender: 'user', text: message }];
     setChatHistory(newHistory);
-    setMessage('');
+    setMessage(''); // wyczyść pole tekstowe
 
-    // Wyślij wiadomość do backendu i pobierz odpowiedź chatbota
     try {
-      const response = await sendMessage(message);
-      // Zakładamy, że backend zwraca odpowiedź w postaci { reply: "tekst odpowiedzi" }
-      setChatHistory([...newHistory, { sender: 'bot', text: response.reply }]);
+      // Wysyłamy POST do backendu. Upewnij się, że adres baseURL jest poprawny.
+      const response = await axios.post('http://localhost:8000/chatbot/query', {
+        message: message
+      });
+      // Zakładamy, że backend zwraca odpowiedź w postaci { reply: "Odpowiedź bota" }
+      const reply = response.data.reply;
+      setChatHistory([...newHistory, { sender: 'bot', text: reply }]);
     } catch (error) {
-      setChatHistory([...newHistory, { sender: 'bot', text: 'Błąd podczas wysyłania wiadomości.' }]);
+      console.error('Błąd podczas wysyłania wiadomości:', error);
+      // W przypadku błędu dodajemy komunikat o błędzie do historii
+      setChatHistory([...newHistory, { sender: 'bot', text: 'Wystąpił błąd. Spróbuj ponownie.' }]);
     }
   };
 
   return (
     <Container className="mt-4">
+        <LoadChatBot />
       <h1>Chat z Chatbotem</h1>
+      {/* Wyświetlanie historii konwersacji */}
       <ListGroup className="mb-4">
         {chatHistory.map((msg, index) => (
-          <ListGroup.Item key={index} variant={msg.sender === 'bot' ? 'secondary' : ''}>
+          <ListGroup.Item 
+            key={index} 
+            variant={msg.sender === 'bot' ? 'secondary' : 'light'}
+          >
             <strong>{msg.sender === 'bot' ? 'Bot:' : 'Ty:'}</strong> {msg.text}
           </ListGroup.Item>
         ))}
       </ListGroup>
+      {/* Formularz do wysyłania wiadomości */}
       <Form onSubmit={handleSend}>
         <Form.Group controlId="chatMessage">
           <Form.Control
