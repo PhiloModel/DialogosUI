@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Container, Form, Button, ListGroup } from 'react-bootstrap';
 import LoadChatBot from '../components/LoadChatBot';  
+import SelectRAG from '../components/SelectRAG';
 
 const ChatPage = () => {
   // Stan do przechowywania bieżącej wiadomości użytkownika
@@ -36,6 +37,7 @@ const ChatPage = () => {
   return (
     <Container className="mt-4">
         <LoadChatBot />
+        <SelectRAG />
       <h1>Chat z Chatbotem</h1>
       {/* Wyświetlanie historii konwersacji */}
       <ListGroup className="mb-4">

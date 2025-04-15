@@ -2,42 +2,90 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 const LoadChatBot = () => {
-  const [dirPath, setDirPath] = useState(''); // Stan do przechowywania ścieżki do folderu
+  const [ragName, setRagName] = useState('');
+  const [files, setFiles] = useState([]);
 
-  // Funkcja do obsługi wysyłania zapytania
+  const handleFileChange = (e) => {
+    setFiles([...e.target.files]);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setFiles([...files, ...e.dataTransfer.files]);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (!dirPath.trim()) {
-      alert('Proszę wprowadzić ścieżkę do folderu.');
+    if (!ragName.trim() || files.length === 0) {
+      alert('Proszę podać nazwę i dodać pliki PDF.');
       return;
     }
 
+    const formData = new FormData();
+    formData.append('rag_name', ragName);
+    files.forEach((file) => formData.append('files', file));
+
     try {
-      // Wysłanie żądania POST do backendu
-      const response = await axios.post('http://localhost:8000/chatbot/create', { dir_path: dirPath });
+      const response = await axios.post('http://localhost:8000/chatbot/upload_pdfs', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
 
-      // Wyświetlenie odpowiedzi serwera
       alert(response.data.reply);
-
-      // Resetowanie stanu po wysłaniu zapytania
-      setDirPath('');
+      setFiles([]);
+      setRagName('');
     } catch (error) {
-      console.error('Błąd podczas ładowania chatbota:', error);
-      alert('Wystąpił błąd podczas ładowania chatbota.');
+      console.error('Błąd przy wysyłaniu:', error);
+      alert('Wystąpił błąd przy ładowaniu plików.');
     }
   };
 
   return (
     <div>
-      <h2>Załaduj Chatbota</h2>
+      <h2>Załaduj Chatbota z plików PDF</h2>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
-          value={dirPath}
-          onChange={(e) => setDirPath(e.target.value)} // Zaktualizowanie stanu
-          placeholder="Wprowadź ścieżkę do folderu PDF"
+          value={ragName}
+          onChange={(e) => setRagName(e.target.value)}
+          placeholder="Wprowadź nazwę RAG-a"
         />
+        <div
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          style={{
+            border: '2px dashed #aaa',
+            padding: '1rem',
+            marginTop: '1rem',
+            marginBottom: '1rem',
+            borderRadius: '8px',
+          }}
+        >
+          <p>Przeciągnij i upuść pliki tutaj lub kliknij, aby dodać</p>
+          <input
+            type="file"
+            multiple
+            accept="application/pdf"
+            onChange={handleFileChange}
+            style={{ display: 'block', marginTop: '0.5rem' }}
+          />
+        </div>
+        {files.length > 0 && (
+          <div>
+            <h4>Wybrane pliki:</h4>
+            <ul>
+              {files.map((file, idx) => (
+                <li key={idx}>{file.name}</li>
+              ))}
+            </ul>
+          </div>
+        )}
         <button type="submit">Załaduj Chatbota</button>
       </form>
     </div>
