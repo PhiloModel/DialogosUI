@@ -18,7 +18,7 @@ export const sendMessage = async (message) => {
 
 export const fetchData = async () => {
   try {
-    const response = await api.get('endpoint/');
+    const response = await api.get('http://localhost:8000/');
     return response.data;
   } catch (error) {
     console.error('Błąd podczas pobierania danych:', error);

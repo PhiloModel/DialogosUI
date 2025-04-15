@@ -7,7 +7,7 @@ const SelectRAG = () => {
 
   const fetchModels = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/chatbot/list');
+      const response = await axios.get('http://localhost:8000/chatbot/list_rags');
       setModels(response.data.names);
     } catch (error) {
       console.error('Błąd przy pobieraniu modeli:', error);

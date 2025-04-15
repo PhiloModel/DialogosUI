@@ -16,9 +16,7 @@ const HomePage = () => {
     <div>
       <h1>Strona Główna</h1>
       <ul>
-        {data.map(item => (
-          <li key={item.id}>{item.name}</li>
-        ))}
+        <p>{data.message}</p>
       </ul>
     </div>
   );
