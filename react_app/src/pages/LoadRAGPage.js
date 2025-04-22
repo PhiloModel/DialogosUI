@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import SelectRAG from '../components/SelectRAG';
+import SelectFiles from '../components/SelectFiles';
+import CreateRAG from '../components/CreateRAG';
 
 const LoadRAGPage = () => {
   const [ragName, setRagName] = useState('');
   const [files, setFiles] = useState([]);
+  const [selectedModel, setSelectedModel] = useState('');
 
   // Obsługa zmiany plików z inputa
   const handleFileChange = (e) => {
@@ -50,11 +52,10 @@ const LoadRAGPage = () => {
     }
   };
 
+  
   return (
     <div style={{ padding: '1rem' }}>
-            <SelectRAG />
       <h2>Ładuj lub stwórz model RAG</h2>
-
       <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -94,9 +95,11 @@ const LoadRAGPage = () => {
           </div>
         )}
         <button type="submit" style={{ padding: '0.75rem 1.5rem' }}>
-          Załaduj model
+          Wgraj pliki
         </button>
       </form>
+      <SelectFiles selectedModel={selectedModel} setSelectedModel={setSelectedModel} />
+      <CreateRAG/>
     </div>
   );
 };
