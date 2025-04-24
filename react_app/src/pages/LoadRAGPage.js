@@ -99,7 +99,7 @@ const LoadRAGPage = () => {
         </button>
       </form>
       <SelectFiles selectedModel={selectedModel} setSelectedModel={setSelectedModel} />
-      <CreateRAG/>
+      <CreateRAG selectedModel={selectedModel}/>
     </div>
   );
 };
