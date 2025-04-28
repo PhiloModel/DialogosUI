@@ -1,38 +1,66 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
+
+// Export the fetchModels function
+export const fetchModels = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    console.log('Token:', token);
+    const response = await axios.get('http://localhost:8000/files/list_pdfs', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    console.log('Odpowiedź z serwera:', response.data.names);
+    return response.data.names;
+  } catch (error) {
+    console.error('Błąd przy pobieraniu modeli:', error);
+    throw error;
+  }
+};
+
 const SelectFiles = ({ setSelectedModel }) => {
   const [models, setModels] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [activeModel, setActiveModel] = useState(''); // nowy stan na aktywny model
+  const [activeModel, setActiveModel] = useState('');
 
-  const fetchModels = async () => {
-    try {
-      const response = await axios.get('http://localhost:8000/files/list_pdfs');
-      setModels(response.data.names);
-    } catch (error) {
-      console.error('Błąd przy pobieraniu modeli:', error);
-    }
-  };
-
+  
   const loadModel = async (modelName) => {
     setLoading(true);
+    
     try {
-      await axios.post('http://localhost:8000/files/load_pdfs', {
-        rag_name: modelName,
-        dir_path: ''
-      });
+      
+      const token = localStorage.getItem('token');
+      await axios.post(
+        'http://localhost:8000/files/load_pdfs',
+        { rag_name: modelName, dir_path: '' },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       alert(`Załadowano model: ${modelName}`);
       setSelectedModel(modelName);
-      setActiveModel(modelName); // ustawiamy podświetlenie
+      setActiveModel(modelName);
+      const modelNames = await fetchModels();
+      setModels(modelNames);
+
     } catch (error) {
       console.error('Błąd przy ładowaniu modelu:', error);
     }
     setLoading(false);
   };
 
+  const loadModels = async () => {
+    try {
+      const modelNames = await fetchModels();
+      setModels(modelNames);
+    } catch (error) {
+      console.error('Błąd przy pobieraniu modeli:', error);
+    }
+  };
+
   useEffect(() => {
-    fetchModels();
+    loadModels();
+    
   }, []);
 
   return (
@@ -40,6 +68,7 @@ const SelectFiles = ({ setSelectedModel }) => {
       <h2>Wybierz notatki</h2>
       {loading && <p>Ładowanie...</p>}
       <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+        
         {models.map((name) => (
           <button
             key={name}

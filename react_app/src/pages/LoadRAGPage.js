@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import SelectFiles from '../components/SelectFiles';
 import CreateRAG from '../components/CreateRAG';
+import { fetchModels } from '../components/SelectFiles'; // Import your selectModels function
+
 
 const LoadRAGPage = () => {
   const [ragName, setRagName] = useState('');
@@ -38,14 +40,25 @@ const LoadRAGPage = () => {
     files.forEach((file) => formData.append('files', file));
 
     try {
-      const response = await axios.post('http://localhost:8000/chatbot/upload_pdfs', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      alert(response.data.reply);
-      setRagName('');
-      setFiles([]);
+      const token = localStorage.getItem('token'); // Get the JWT token
+        
+        const response = await axios.post(
+            'http://localhost:8000/files/upload_pdfs', 
+            formData, 
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${token}` // Add the authorization header
+                },
+            }
+        );
+        
+        alert(response.data.reply);
+        setRagName('');
+        setFiles([]);
+        
+        // Optionally refresh the file list
+        await fetchModels();
     } catch (error) {
       console.error('Błąd przy wysyłaniu plików:', error);
       alert('Wystąpił błąd podczas ładowania modelu.');
