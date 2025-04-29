@@ -1,18 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-
-// Export the fetchModels function
 export const fetchModels = async () => {
   try {
     const token = localStorage.getItem('token');
-    console.log('Token:', token);
     const response = await axios.get('http://localhost:8000/files/list_pdfs', {
       headers: {
         'Authorization': `Bearer ${token}`
       }
     });
-    console.log('Odpowiedź z serwera:', response.data.names);
     return response.data.names;
   } catch (error) {
     console.error('Błąd przy pobieraniu modeli:', error);
@@ -20,33 +16,27 @@ export const fetchModels = async () => {
   }
 };
 
-const SelectFiles = ({ setSelectedModel }) => {
+const SelectFiles = ({ setSelectedModels }) => {
   const [models, setModels] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [activeModel, setActiveModel] = useState('');
+  const [selectedFiles, setSelectedFiles] = useState([]);
 
-  
-  const loadModel = async (modelName) => {
-    setLoading(true);
-    
-    try {
-      
-      const token = localStorage.getItem('token');
-      await axios.post(
-        'http://localhost:8000/files/load_pdfs',
-        { rag_name: modelName, dir_path: '' },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      alert(`Załadowano model: ${modelName}`);
-      setSelectedModel(modelName);
-      setActiveModel(modelName);
-      const modelNames = await fetchModels();
-      setModels(modelNames);
-
-    } catch (error) {
-      console.error('Błąd przy ładowaniu modelu:', error);
-    }
-    setLoading(false);
+  const toggleModelSelection = (modelName) => {
+    setSelectedFiles(prev => {
+      if (prev.includes(modelName)) {
+        return prev.filter(name => name !== modelName);
+      } else {
+        return [...prev, modelName];
+      }
+    });
+    // Update parent component with selected models
+    setSelectedModels(prev => {
+      if (prev.includes(modelName)) {
+        return prev.filter(name => name !== modelName);
+      } else {
+        return [...prev, modelName];
+      }
+    });
   };
 
   const loadModels = async () => {
@@ -60,7 +50,6 @@ const SelectFiles = ({ setSelectedModel }) => {
 
   useEffect(() => {
     loadModels();
-    
   }, []);
 
   return (
@@ -68,17 +57,16 @@ const SelectFiles = ({ setSelectedModel }) => {
       <h2>Wybierz notatki</h2>
       {loading && <p>Ładowanie...</p>}
       <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-        
         {models.map((name) => (
           <button
             key={name}
-            onClick={() => loadModel(name)}
+            onClick={() => toggleModelSelection(name)}
             style={{
               padding: '10px 20px',
               borderRadius: '8px',
-              backgroundColor: activeModel === name ? '#4CAF50' : '#eee',
-              color: activeModel === name ? 'white' : 'black',
-              border: activeModel === name ? '2px solid #4CAF50' : '2px solid #ccc',
+              backgroundColor: selectedFiles.includes(name) ? '#4CAF50' : '#eee',
+              color: selectedFiles.includes(name) ? 'white' : 'black',
+              border: selectedFiles.includes(name) ? '2px solid #4CAF50' : '2px solid #ccc',
               cursor: 'pointer'
             }}
           >
@@ -86,6 +74,11 @@ const SelectFiles = ({ setSelectedModel }) => {
           </button>
         ))}
       </div>
+      {selectedFiles.length > 0 && (
+        <div style={{ marginTop: '1rem' }}>
+          <p>Wybrane notatki: {selectedFiles.join(', ')}</p>
+        </div>
+      )}
     </div>
   );
 };

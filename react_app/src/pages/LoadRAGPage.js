@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import SelectFiles from '../components/SelectFiles';
 import CreateRAG from '../components/CreateRAG';
-import { fetchModels } from '../components/SelectFiles'; // Import your selectModels function
+import { fetchModels} from '../components/SelectFiles'; // Import your selectModels function
 
 
 const LoadRAGPage = () => {
   const [ragName, setRagName] = useState('');
   const [files, setFiles] = useState([]);
-  const [selectedModel, setSelectedModel] = useState('');
+  const [selectedModels, setSelectedModels] = useState([]);
 
   // Obsługa zmiany plików z inputa
   const handleFileChange = (e) => {
@@ -111,8 +111,8 @@ const LoadRAGPage = () => {
           Wgraj pliki
         </button>
       </form>
-      <SelectFiles selectedModel={selectedModel} setSelectedModel={setSelectedModel} />
-      <CreateRAG selectedModel={selectedModel}/>
+      <SelectFiles setSelectedModels={setSelectedModels} />
+      <CreateRAG selectedModels={selectedModels}/>
     </div>
   );
 };
