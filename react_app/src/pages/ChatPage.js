@@ -3,6 +3,7 @@ import axios from 'axios';
 import Sidebar from '../components/Sidebar';  // Importujemy Sidebar
 import { Container, Form, Button, ListGroup } from 'react-bootstrap';
 import SelectRAG from '../components/SelectRAG';
+import ModelSelector from '../components/ModelSelector';
 
 const ChatPage = () => {
   const [message, setMessage] = useState('');
@@ -11,6 +12,8 @@ const ChatPage = () => {
   const [currentChatId, setCurrentChatId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [selectedModel, setSelectedModel] = useState(null);
+
 
   const fetchChatHistory = async (chatId) => {
     setLoading(true);
@@ -200,6 +203,11 @@ const ChatPage = () => {
     setChatHistory([]);
   };
 
+  // Add handler for model selection
+  const handleModelSelect = (model) => {
+    setSelectedModel(model);
+    console.log('Selected model:', model);
+  };
 
 
   return (
@@ -214,6 +222,7 @@ const ChatPage = () => {
       />
       <Container className="mt-4">
         <SelectRAG />
+        <ModelSelector onModelSelect={handleModelSelect} />
         {error && (
           <div className="alert alert-danger" role="alert">
             {error}

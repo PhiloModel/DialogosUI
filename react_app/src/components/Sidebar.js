@@ -1,6 +1,25 @@
 import React from 'react';
 import { ListGroup, Button, Spinner } from 'react-bootstrap';
 
+const formatTimestamp = (timestamp) => {
+  if (!timestamp) return '';
+  
+  // Parse timestamp from format "YYYYMMDDHHmmss"
+  const year = timestamp.slice(0, 4);
+  const month = timestamp.slice(4, 6);
+  const day = timestamp.slice(6, 8);
+  const hour = timestamp.slice(8, 10);
+  const minute = timestamp.slice(10, 12);
+  const second = timestamp.slice(12, 14);
+
+  // Create date string in local format
+  const date = new Date(
+    `${year}-${month}-${day}T${hour}:${minute}:${second}`
+  );
+
+  return date.toLocaleString();
+};
+
 const Sidebar = ({ 
   chats, 
   currentChatId, 
@@ -35,7 +54,7 @@ const Sidebar = ({
           >
             <div>{chat.name}</div>
             <small className="text-muted">
-              {new Date(chat.timestamp).toLocaleString()}
+              {formatTimestamp(chat.timestamp)}
             </small>
           </ListGroup.Item>
         ))}
